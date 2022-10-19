@@ -38,6 +38,9 @@ def clean_attrition_dataset(dataset: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    This function aims to create a dummy variable for attrition.
+    '''
     df['Year_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.year)
     df['Month_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.month)
     df['Day_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.day)
