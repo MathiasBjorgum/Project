@@ -1,8 +1,9 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 CWD = Path.cwd()
 DATA_PATH = CWD.joinpath("data")
@@ -38,6 +39,9 @@ def clean_attrition_dataset(dataset: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    This function aims to create a dummy variable for attrition.
+    '''
     df['Year_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.year)
     df['Month_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.month)
     df['Day_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.day)
@@ -60,7 +64,14 @@ def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     df['Attrition'] = np.where(df['Last_Working_Date'].isnull(), 0, 1)
 
-    df = df.drop(columns='Last_Working_Date')
-    df = df.drop(columns='Date_Of_Joining')
+    df = df.drop(columns=["Year_of_join", "Month_of_join",
+                 "Day_of_join", "Year_of_leave", "Month_of_leave"])
+
+    return df
+
+
+def remove_duplicates_and_fill_na(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.drop_duplicates("Emp_ID", keep="last")
+    df["Last_Working_Date"] = df["Last_Working_Date"].fillna(datetime(2017, 12, 31), inplace=False)
 
     return df
