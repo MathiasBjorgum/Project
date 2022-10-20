@@ -37,11 +37,9 @@ def clean_attrition_dataset(dataset: pd.DataFrame) -> pd.DataFrame:
 
     return dataset
 
+def create_attrition(df: pd.DataFrame) -> pd.DataFrame:
+    '''Creates the `Attrition` column in the dataset'''
 
-def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
-    '''
-    This function aims to create a dummy variable for attrition.
-    '''
     df['Year_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.year)
     df['Month_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.month)
     df['Day_of_join'] = df['Date_Of_Joining'].apply(lambda t: t.day)
@@ -66,12 +64,47 @@ def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.drop(columns=["Year_of_join", "Month_of_join",
                  "Day_of_join", "Year_of_leave", "Month_of_leave"])
+    
+    return df
+
+def create_duration_of_work(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Computes the duration of work. Here we assume that the last working day was
+    2017-12-31.
+    '''
+
+    df["Last_Working_Date"] = df["Last_Working_Date"].fillna(datetime(2017, 12, 31), inplace=False)
+    df["Work_Duration"] = (df.Last_Working_Date - df.Date_Of_Joining).dt.days
 
     return df
 
 
-def remove_duplicates_and_fill_na(df: pd.DataFrame) -> pd.DataFrame:
+def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    This function aims to create a dummy variable for attrition
+    and how long the employee worked at the company in days.\\
+    The function also removes duplicate entries.
+    '''
+
+    df = create_attrition(df)
+    df = create_duration_of_work(df)
     df = df.drop_duplicates("Emp_ID", keep="last")
-    df["Last_Working_Date"] = df["Last_Working_Date"].fillna(datetime(2017, 12, 31), inplace=False)
+
+    return df
+
+def create_categorical_variables(df: pd.DataFrame) -> pd.DataFrame:
+    '''Creates categorical variables for `Gender`, `City` and `Education_level`'''
+    df.Gender = df.Gender.astype("category")
+    df.City = df.City.astype("category")
+    df.Education_Level = df.Education_Level.astype("category")
+
+    return df
+
+def get_and_process_df(filename: str) -> pd.DataFrame:
+    '''Combines functions to create and process the dataset'''
+    df = get_dataset(filename)
+    df = clean_attrition_dataset(df)
+    df = create_additional_columns(df)
+    df = create_categorical_variables(df)
 
     return df
