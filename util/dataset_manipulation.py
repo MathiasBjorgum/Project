@@ -35,6 +35,16 @@ def clean_attrition_dataset(dataset: pd.DataFrame) -> pd.DataFrame:
     dataset.Date_Of_Joining = pd.to_datetime(dataset.Date_Of_Joining)
     dataset.Last_Working_Date = pd.to_datetime(dataset.Last_Working_Date)
 
+    dataset.City = dataset["City"].replace({"C1": "C01", 
+                                                  "C2": "C02", 
+                                                  "C3": "C03",
+                                                  "C4": "C04",
+                                                  "C5": "C05",
+                                                  "C6": "C06",
+                                                  "C7": "C07",
+                                                  "C8": "C08",
+                                                  "C9": "C09"})
+
     return dataset
 
 def create_attrition(df: pd.DataFrame) -> pd.DataFrame:
@@ -92,19 +102,22 @@ def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def create_categorical_variables(df: pd.DataFrame) -> pd.DataFrame:
+def create_categorical_variables(df: pd.DataFrame, create_dummies: bool = True) -> pd.DataFrame:
     '''Creates categorical variables for `Gender`, `City` and `Education_level`'''
     df.Gender = df.Gender.astype("category")
     df.City = df.City.astype("category")
     df.Education_Level = df.Education_Level.astype("category")
 
+    if create_dummies:
+        df = pd.get_dummies(df, prefix_sep="_")
+
     return df
 
-def get_and_process_df(filename: str) -> pd.DataFrame:
+def get_and_process_df(filename: str, create_dummies: bool = True) -> pd.DataFrame:
     '''Combines functions to create and process the dataset'''
     df = get_dataset(filename)
     df = clean_attrition_dataset(df)
     df = create_additional_columns(df)
-    df = create_categorical_variables(df)
+    df = create_categorical_variables(df, create_dummies)
 
     return df
