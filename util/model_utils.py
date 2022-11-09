@@ -1,7 +1,7 @@
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-
-
+from sklearn.metrics import confusion_matrix
+from sklearn.base import BaseEstimator
 
 def train_test_model(model, X_train, y_train, X_test, y_test):
     '''Trains and tests a given model, printing out classification report and accuracy. The function also returns the model.'''
@@ -12,5 +12,7 @@ def train_test_model(model, X_train, y_train, X_test, y_test):
     print(accuracy_score(y_test, y_pred))
 
     print(classification_report(y_test, y_pred))
+
+    print(confusion_matrix(y_test, y_pred))
 
     return model

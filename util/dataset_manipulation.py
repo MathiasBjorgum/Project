@@ -99,6 +99,7 @@ def create_additional_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = create_attrition(df)
     df = create_duration_of_work(df)
     df = df.drop_duplicates("Emp_ID", keep="last")
+    df["delta_designation"] = df.Designation - df.Joining_Designation
 
     return df
 
@@ -107,9 +108,18 @@ def create_categorical_variables(df: pd.DataFrame, create_dummies: bool = True) 
     df.Gender = df.Gender.astype("category")
     df.City = df.City.astype("category")
     df.Education_Level = df.Education_Level.astype("category")
+    df.delta_designation = df.delta_designation.astype("category")
+
 
     if create_dummies:
         df = pd.get_dummies(df, prefix_sep="_")
+
+    return df
+
+def create_salary_bins(df: pd.DataFrame) -> pd.DataFrame:
+
+    df["salary_bin"] = pd.cut(df["Salary"], bins=8, labels=[i for i in range(1,9)])
+    df["salary_bin"] = df["salary_bin"].astype("category")
 
     return df
 
@@ -119,5 +129,6 @@ def get_and_process_df(filename: str, create_dummies: bool = True) -> pd.DataFra
     df = clean_attrition_dataset(df)
     df = create_additional_columns(df)
     df = create_categorical_variables(df, create_dummies)
+    df = create_salary_bins(df)
 
     return df
